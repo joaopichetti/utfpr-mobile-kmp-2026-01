@@ -1,12 +1,12 @@
-package br.edu.utfpr.consultacepkmp.data.repository
+package br.edu.utfpr.shared.data.repository
 
-import br.edu.utfpr.consultacepkmp.data.remote.RetrofitClient
-import br.edu.utfpr.consultacepkmp.data.remote.ViaCepApi
+import br.edu.utfpr.shared.data.remote.ViaCepApi
+import br.edu.utfpr.shared.data.remote.ViaCepApiImpl
 import br.edu.utfpr.shared.domain.model.Endereco
 import br.edu.utfpr.shared.domain.repository.CepRepository
 
 class CepRepositoryImpl(
-    private val api: ViaCepApi = RetrofitClient.viaCepApi
+    private val api: ViaCepApi = ViaCepApiImpl()
 ) : CepRepository {
 
     override suspend fun buscarCep(cep: String): Result<Endereco> {

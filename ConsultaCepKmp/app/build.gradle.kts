@@ -47,8 +47,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.gson)
     implementation(project(":shared"))
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -1,7 +1,9 @@
-package br.edu.utfpr.consultacepkmp.data.model
+package br.edu.utfpr.shared.data.model
 
 import br.edu.utfpr.shared.domain.model.Endereco
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class EnderecoResponse(
     val cep: String? = null,
     val logradouro: String? = null,

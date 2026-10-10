@@ -2,7 +2,7 @@ package br.edu.utfpr.consultacepkmp.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.edu.utfpr.consultacepkmp.data.repository.CepRepositoryImpl
+import br.edu.utfpr.shared.data.repository.CepRepositoryImpl
 import br.edu.utfpr.shared.domain.repository.CepRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
