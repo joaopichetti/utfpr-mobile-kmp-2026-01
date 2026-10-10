@@ -2,8 +2,8 @@ package br.edu.utfpr.consultacepkmp.data.repository
 
 import br.edu.utfpr.consultacepkmp.data.remote.RetrofitClient
 import br.edu.utfpr.consultacepkmp.data.remote.ViaCepApi
-import br.edu.utfpr.consultacepkmp.domain.model.Endereco
-import br.edu.utfpr.consultacepkmp.domain.repository.CepRepository
+import br.edu.utfpr.shared.domain.model.Endereco
+import br.edu.utfpr.shared.domain.repository.CepRepository
 
 class CepRepositoryImpl(
     private val api: ViaCepApi = RetrofitClient.viaCepApi

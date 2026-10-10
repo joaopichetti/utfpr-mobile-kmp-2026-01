@@ -1,4 +1,4 @@
-package br.edu.utfpr.consultacepkmp.domain.model
+package br.edu.utfpr.shared.domain.model
 
 data class Endereco(
     val cep: String,

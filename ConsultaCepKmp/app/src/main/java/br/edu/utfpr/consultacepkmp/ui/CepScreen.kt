@@ -47,8 +47,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import br.edu.utfpr.consultacepkmp.domain.model.Endereco
 import br.edu.utfpr.consultacepkmp.ui.theme.ConsultaCepKmpTheme
+import br.edu.utfpr.shared.domain.model.Endereco
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

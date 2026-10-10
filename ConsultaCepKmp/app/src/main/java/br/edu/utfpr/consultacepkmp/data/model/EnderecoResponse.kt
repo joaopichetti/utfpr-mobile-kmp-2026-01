@@ -1,6 +1,6 @@
 package br.edu.utfpr.consultacepkmp.data.model
 
-import br.edu.utfpr.consultacepkmp.domain.model.Endereco
+import br.edu.utfpr.shared.domain.model.Endereco
 
 data class EnderecoResponse(
     val cep: String? = null,
