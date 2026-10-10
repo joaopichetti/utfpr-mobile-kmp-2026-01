@@ -54,6 +54,8 @@ kotlin {
         }
     }
 
+    jvm()
+
     // Source set declarations.
     // Declaring a target automatically creates a source set with the same name. By default, the
     // Kotlin Gradle Plugin creates additional source sets that depend on each other, since it is
@@ -96,6 +98,11 @@ kotlin {
                 implementation(libs.ktor.client.darwin)
             }
         }
-    }
 
+        jvmMain {
+            dependencies {
+                implementation(libs.ktor.client.okhttp)
+            }
+        }
+    }
 }
