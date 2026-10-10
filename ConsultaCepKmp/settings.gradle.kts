@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ConsultaCepKmp"
 include(":app")
+include(":shared")
