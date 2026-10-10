@@ -6,8 +6,10 @@ import br.edu.utfpr.shared.domain.model.Endereco
 import br.edu.utfpr.shared.domain.repository.CepRepository
 
 class CepRepositoryImpl(
-    private val api: ViaCepApi = ViaCepApiImpl()
+    private val api: ViaCepApi
 ) : CepRepository {
+
+    constructor() : this(ViaCepApiImpl())
 
     override suspend fun buscarCep(cep: String): Result<Endereco> {
         return runCatching {

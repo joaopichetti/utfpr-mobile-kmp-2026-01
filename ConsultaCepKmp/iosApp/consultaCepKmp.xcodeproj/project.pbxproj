@@ -13,6 +13,10 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B9281DDC307A9F82008CE904 /* consultaCepKmp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
 			path = consultaCepKmp;
 			sourceTree = "<group>";
 		};

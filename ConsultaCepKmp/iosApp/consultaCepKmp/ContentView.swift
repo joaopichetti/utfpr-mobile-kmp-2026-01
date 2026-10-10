@@ -6,20 +6,9 @@
 //
 
 import SwiftUI
-import sharedKit
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello from shared module: \(Platform_iosKt.platform())")
-        }
-        .padding()
+        CepScreen()
     }
-}
-
-#Preview {
-    ContentView()
 }
