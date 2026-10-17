@@ -27,7 +27,8 @@ fun PessoasListScreen(
     uiState: PessoasListUiState,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onPessoaClick: (Pessoa) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -76,7 +77,8 @@ fun PessoasListScreen(
                     PessoasListSuccess(
                         pessoas = uiState.pessoas,
                         isRefreshing = uiState.isRefreshing,
-                        onRefresh = onRefresh
+                        onRefresh = onRefresh,
+                        onPessoaClick = onPessoaClick
                     )
                 }
             }
@@ -92,7 +94,8 @@ private fun PessoasListScreenLoadingPreview() {
             uiState = PessoasListUiState.Loading,
             onRefresh = {},
             onRetry = {},
-            onAddClick = {}
+            onAddClick = {},
+            onPessoaClick = {}
         )
     }
 }
@@ -105,7 +108,8 @@ private fun PessoasListScreenErrorPreview() {
             uiState = PessoasListUiState.Error("Falha de conexão com o servidor."),
             onRefresh = {},
             onRetry = {},
-            onAddClick = {}
+            onAddClick = {},
+            onPessoaClick = {}
         )
     }
 }
@@ -118,7 +122,8 @@ private fun PessoasListScreenEmptyPreview() {
             uiState = PessoasListUiState.Success(pessoas = emptyList()),
             onRefresh = {},
             onRetry = {},
-            onAddClick = {}
+            onAddClick = {},
+            onPessoaClick = {}
         )
     }
 }
@@ -156,7 +161,8 @@ private fun PessoasListScreenSuccessPreview() {
             ),
             onRefresh = {},
             onRetry = {},
-            onAddClick = {}
+            onAddClick = {},
+            onPessoaClick = {}
         )
     }
 }

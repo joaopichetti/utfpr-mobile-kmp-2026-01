@@ -1,5 +1,6 @@
 package br.edu.utfpr.cadastropessoascmp.ui.list.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +35,8 @@ fun PessoasListSuccess(
     modifier: Modifier = Modifier,
     pessoas: List<Pessoa>,
     isRefreshing: Boolean,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    onPessoaClick: (Pessoa) -> Unit
 ) {
     PullToRefreshBox(
         isRefreshing = isRefreshing,
@@ -74,6 +76,7 @@ fun PessoasListSuccess(
             ) {
                 items(pessoas, key = { it.id } ) { pessoa ->
                     ListItem(
+                        modifier = Modifier.clickable { onPessoaClick(pessoa) },
                         headlineContent = {
                             Text(
                                 text = pessoa.nome,
@@ -101,7 +104,8 @@ private fun PessoasListSuccessEmptyPreview() {
         PessoasListSuccess(
             pessoas = emptyList(),
             isRefreshing = false,
-            onRefresh = {}
+            onRefresh = {},
+            onPessoaClick = {}
         )
     }
 }
@@ -136,7 +140,8 @@ private fun PessoasListSuccessWithItemsPreview() {
                 )
             ),
             isRefreshing = false,
-            onRefresh = {}
+            onRefresh = {},
+            onPessoaClick = {}
         )
     }
 }
