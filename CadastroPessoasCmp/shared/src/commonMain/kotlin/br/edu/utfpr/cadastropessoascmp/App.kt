@@ -1,49 +1,51 @@
 package br.edu.utfpr.cadastropessoascmp
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import cadastropessoascmp.shared.generated.resources.Res
-import cadastropessoascmp.shared.generated.resources.compose_multiplatform
+import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
+import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
+import br.edu.utfpr.cadastropessoascmp.ui.list.PessoasListScreen
+import br.edu.utfpr.cadastropessoascmp.ui.list.PessoasListUiState
 
 @Composable
 @Preview
 fun App() {
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
-        }
+        val samplePessoas = listOf(
+            Pessoa(
+                id = 1,
+                nome = "João Silva",
+                cpf = "123.456.789-00",
+                telefone = "(41) 99999-1111",
+                endereco = Endereco(
+                    logradouro = "Rua das Flores",
+                    numero = 100,
+                    cidade = "Curitiba",
+                    bairro = "Centro",
+                    cep = "80000-000"
+                )
+            ),
+            Pessoa(
+                id = 2,
+                nome = "Maria Oliveira",
+                cpf = "987.654.321-99",
+                telefone = "(41) 98888-2222",
+                endereco = Endereco(
+                    logradouro = "Av. Sete de Setembro",
+                    numero = 2500,
+                    cidade = "Curitiba",
+                    bairro = "Batel",
+                    cep = "80240-000"
+                )
+            )
+        )
+
+        PessoasListScreen(
+            uiState = PessoasListUiState.Success(pessoas = samplePessoas),
+            onRefresh = {},
+            onRetry = {},
+            onAddClick = {}
+        )
     }
 }
