@@ -13,8 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.ui.components.ErrorComponent
@@ -23,6 +26,25 @@ import br.edu.utfpr.cadastropessoascmp.ui.list.components.PessoasListSuccess
 
 @Composable
 fun PessoasListScreen(
+    modifier: Modifier = Modifier,
+    viewModel: PessoasListViewModel = viewModel(),
+    onAddClick: () -> Unit,
+    onPessoaClick: (Pessoa) -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    PessoasListScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onRefresh = viewModel::atualizar,
+        onRetry = viewModel::carregarPessoas,
+        onAddClick = onAddClick,
+        onPessoaClick = onPessoaClick
+    )
+}
+
+@Composable
+private fun PessoasListScreen(
     modifier: Modifier = Modifier,
     uiState: PessoasListUiState,
     onRefresh: () -> Unit,

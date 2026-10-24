@@ -11,7 +11,6 @@ import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.ui.form.PessoaFormScreen
 import br.edu.utfpr.cadastropessoascmp.ui.form.PessoaFormUiState
 import br.edu.utfpr.cadastropessoascmp.ui.list.PessoasListScreen
-import br.edu.utfpr.cadastropessoascmp.ui.list.PessoasListUiState
 
 @Composable
 fun AppNavHost(
@@ -27,15 +26,12 @@ fun AppNavHost(
     ) {
         composable<Screen.List> {
             PessoasListScreen(
-                uiState = PessoasListUiState.Success(pessoas = pessoas),
                 onAddClick = {
                     navController.navigate(Screen.Form())
                 },
                 onPessoaClick = { pessoa ->
                     navController.navigate(Screen.Form(pessoaId = pessoa.id))
-                },
-                onRetry = {},
-                onRefresh = {}
+                }
             )
         }
         composable<Screen.Form> { backStackEntry ->
