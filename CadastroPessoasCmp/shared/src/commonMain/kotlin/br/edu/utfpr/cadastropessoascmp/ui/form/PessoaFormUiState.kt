@@ -45,4 +45,17 @@ sealed interface PessoaFormUiState {
         val message: String = "Ocorreu um erro ao salvar a pessoa",
         val errors: PessoaFormErrors = PessoaFormErrors()
     ) : PessoaFormUiState
+
+    data class Deleting(
+        override val isEditing: Boolean = true,
+        val pessoa: Pessoa = Pessoa(),
+        val errors: PessoaFormErrors = PessoaFormErrors()
+    ) : PessoaFormUiState
+
+    data class DeleteError(
+        override val isEditing: Boolean = true,
+        val pessoa: Pessoa = Pessoa(),
+        val errors: PessoaFormErrors = PessoaFormErrors(),
+        val message: String = "Ocorreu um erro ao excluir a pessoa"
+    ) : PessoaFormUiState
 }

@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -16,12 +18,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,14 +47,22 @@ fun PessoaFormScreen(
         PessoaFormViewModel(pessoaId = pessoaId)
     },
     onBackClick: () -> Unit,
-    onSaveSuccess: () -> Unit = onBackClick
+    onSaveSuccess: () -> Unit = onBackClick,
+    onDeleteSuccess: () -> Unit = onBackClick
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pessoaSalva by viewModel.pessoaSalva.collectAsStateWithLifecycle()
+    val pessoaExcluida by viewModel.pessoaExcluida.collectAsStateWithLifecycle()
 
     LaunchedEffect(pessoaSalva) {
         if (pessoaSalva) {
             onSaveSuccess()
+        }
+    }
+
+    LaunchedEffect(pessoaExcluida) {
+        if (pessoaExcluida) {
+            onDeleteSuccess()
         }
     }
 
@@ -59,7 +72,8 @@ fun PessoaFormScreen(
         onBackClick = onBackClick,
         onSaveClick = viewModel::salvarPessoa,
         onRetry = viewModel::carregarPessoa,
-        onPessoaChange = viewModel::onPessoaChange
+        onPessoaChange = viewModel::onPessoaChange,
+        onDeleteClick = viewModel::excluirPessoa
     )
 }
 
@@ -71,15 +85,32 @@ fun PessoaFormScreen(
     onSaveClick: () -> Unit,
     onRetry: () -> Unit,
     onPessoaChange: (Pessoa) -> Unit,
+    onDeleteClick: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(uiState) {
-        if (uiState is PessoaFormUiState.SaveError) {
-            snackbarHostState.showSnackbar(uiState.message)
+        when (uiState) {
+            is PessoaFormUiState.SaveError -> {
+                snackbarHostState.showSnackbar(uiState.message)
+            }
+            is PessoaFormUiState.DeleteError -> {
+                snackbarHostState.showSnackbar(uiState.message)
+            }
+            else -> {}
         }
     }
 
-    val titleText = if (uiState.isEditing) "Editar Pessoa" else "Cadastrar Pessoa"
+    if (showDeleteDialog) {
+        ConfirmDeleteDialog(
+            onDismiss = { showDeleteDialog = false },
+            onConfirm = {
+                showDeleteDialog = false
+                onDeleteClick()
+            }
+        )
+    }
 
     Scaffold(
         modifier = modifier,
@@ -88,10 +119,10 @@ fun PessoaFormScreen(
         },
         topBar = {
             PessoaFormTopBar(
-                title = titleText,
                 uiState = uiState,
                 onBackClick = onBackClick,
-                onSaveClick = onSaveClick
+                onSaveClick = onSaveClick,
+                onDeleteClick = { showDeleteDialog = true }
             )
         }
     ) { innerPadding ->
@@ -136,22 +167,68 @@ fun PessoaFormScreen(
                         onPessoaChange = onPessoaChange
                     )
                 }
+                is PessoaFormUiState.DeleteError -> {
+                    PessoaFormSuccess(
+                        pessoa = uiState.pessoa,
+                        errors = uiState.errors,
+                        enabled = true,
+                        onPessoaChange = onPessoaChange
+                    )
+                }
+                is PessoaFormUiState.Deleting -> {
+                    PessoaFormSuccess(
+                        pessoa = uiState.pessoa,
+                        errors = uiState.errors,
+                        enabled = false,
+                        onPessoaChange = onPessoaChange
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
+fun ConfirmDeleteDialog(
+    modifier: Modifier = Modifier,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = onDismiss,
+        title = {
+            Text("Confirmar exclusão")
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text(
+                    text = "Excluir",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
 private fun PessoaFormTopBar(
     modifier: Modifier = Modifier,
-    title: String,
     uiState: PessoaFormUiState,
     onBackClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
+    val titleText = if (uiState.isEditing) "Editar Pessoa" else "Cadastrar Pessoa"
+
     TopAppBar(
         modifier = modifier.fillMaxWidth(),
-        title = { Text(title) },
+        title = { Text(titleText) },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(
@@ -162,7 +239,17 @@ private fun PessoaFormTopBar(
         },
         actions = {
             when (uiState) {
-                is PessoaFormUiState.Success, is PessoaFormUiState.SaveError -> {
+                is PessoaFormUiState.Success,
+                is PessoaFormUiState.SaveError,
+                is PessoaFormUiState.DeleteError -> {
+                    if (uiState.isEditing) {
+                        IconButton(onClick = onDeleteClick) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Excluir"
+                            )
+                        }
+                    }
                     IconButton(onClick = onSaveClick) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -170,7 +257,8 @@ private fun PessoaFormTopBar(
                         )
                     }
                 }
-                is PessoaFormUiState.Saving -> {
+                is PessoaFormUiState.Saving,
+                is PessoaFormUiState.Deleting -> {
                     Box(
                         modifier = Modifier.padding(horizontal = 12.dp),
                         contentAlignment = Alignment.Center
@@ -206,7 +294,8 @@ private fun PessoaFormScreenLoadingPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }
@@ -223,7 +312,8 @@ private fun PessoaFormScreenErrorPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }
@@ -240,7 +330,8 @@ private fun PessoaFormScreenSuccessInsertPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }
@@ -270,7 +361,8 @@ private fun PessoaFormScreenSuccessEditPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }
@@ -299,7 +391,8 @@ private fun PessoaFormScreenSavingPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }
@@ -329,7 +422,8 @@ private fun PessoaFormScreenSaveErrorPreview() {
             onBackClick = {},
             onRetry = {},
             onSaveClick = {},
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onDeleteClick = {}
         )
     }
 }

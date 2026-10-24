@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import br.edu.utfpr.cadastropessoascmp.data.repository.PessoaRepositoryImpl
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.domain.repository.PessoaRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.seconds
 
 class PessoaFormViewModel(
     private val pessoaId: Int? = null,
@@ -28,6 +30,9 @@ class PessoaFormViewModel(
 
     private val _pessoaSalva = MutableStateFlow(false)
     val pessoaSalva: StateFlow<Boolean> = _pessoaSalva.asStateFlow()
+
+    private val _pessoaExcluida = MutableStateFlow(false)
+    val pessoaExcluida: StateFlow<Boolean> = _pessoaExcluida.asStateFlow()
 
     init {
         if (isEditing) {
@@ -75,6 +80,7 @@ class PessoaFormViewModel(
         val (previousPessoa, currentErrors) = when (currentState) {
             is PessoaFormUiState.Success -> currentState.pessoa to currentState.errors
             is PessoaFormUiState.SaveError -> currentState.pessoa to currentState.errors
+            is PessoaFormUiState.DeleteError -> currentState.pessoa to currentState.errors
             else -> return
         }
 
@@ -122,6 +128,7 @@ class PessoaFormViewModel(
         val currentPessoa = when (val state = _uiState.value) {
             is PessoaFormUiState.Success -> state.pessoa
             is PessoaFormUiState.SaveError -> state.pessoa
+            is PessoaFormUiState.DeleteError -> state.pessoa
             else -> return
         }
 
@@ -153,6 +160,40 @@ class PessoaFormViewModel(
                     isEditing = isEditing,
                     pessoa = currentPessoa,
                     message = error.message ?: "Ocorreu um erro ao salvar a pessoa."
+                )
+            }
+        }
+    }
+
+    fun excluirPessoa() {
+        if (!isEditing) return
+
+        val (currentPessoa, currentErrors) = when (val state = _uiState.value) {
+            is PessoaFormUiState.Success -> state.pessoa to state.errors
+            is PessoaFormUiState.SaveError -> state.pessoa to state.errors
+            is PessoaFormUiState.DeleteError -> state.pessoa to state.errors
+            else -> return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = PessoaFormUiState.Deleting(
+                isEditing = isEditing,
+                pessoa = currentPessoa,
+                errors = currentErrors
+            )
+
+            delay(2.seconds)
+
+            runCatching {
+                pessoaRepository.deletar(currentPessoa)
+            }.onSuccess {
+                _pessoaExcluida.value = true
+            }.onFailure { error ->
+                _uiState.value = PessoaFormUiState.DeleteError(
+                    isEditing = isEditing,
+                    pessoa = currentPessoa,
+                    errors = currentErrors,
+                    message = error.message ?: "Ocorreu um erro ao excluir a pessoa."
                 )
             }
         }
