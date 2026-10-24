@@ -20,11 +20,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.ui.components.ErrorComponent
@@ -34,10 +37,40 @@ import br.edu.utfpr.cadastropessoascmp.ui.form.components.PessoaFormSuccess
 @Composable
 fun PessoaFormScreen(
     modifier: Modifier = Modifier,
+    pessoaId: Int? = null,
+    viewModel: PessoaFormViewModel = viewModel(key = pessoaId?.toString() ?: "new") {
+        PessoaFormViewModel(pessoaId = pessoaId)
+    },
+    onBackClick: () -> Unit,
+    onSaveSuccess: () -> Unit = onBackClick
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val pessoaSalva by viewModel.pessoaSalva.collectAsStateWithLifecycle()
+
+    LaunchedEffect(pessoaSalva) {
+        if (pessoaSalva) {
+            onSaveSuccess()
+        }
+    }
+
+    PessoaFormScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onBackClick = onBackClick,
+        onSaveClick = viewModel::salvarPessoa,
+        onRetry = viewModel::carregarPessoa,
+        onPessoaChange = viewModel::onPessoaChange
+    )
+}
+
+@Composable
+fun PessoaFormScreen(
+    modifier: Modifier = Modifier,
     uiState: PessoaFormUiState,
     onBackClick: () -> Unit,
     onSaveClick: () -> Unit,
     onRetry: () -> Unit,
+    onPessoaChange: (Pessoa) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     LaunchedEffect(uiState) {
@@ -82,19 +115,25 @@ fun PessoaFormScreen(
                 is PessoaFormUiState.Success -> {
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
-                        enabled = true
+                        enabled = true,
+                        errors = uiState.errors,
+                        onPessoaChange = onPessoaChange
                     )
                 }
                 is PessoaFormUiState.Saving -> {
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
-                        enabled = false
+                        enabled = false,
+                        errors = uiState.errors,
+                        onPessoaChange = onPessoaChange
                     )
                 }
                 is PessoaFormUiState.SaveError -> {
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
-                        enabled = true
+                        enabled = true,
+                        errors = uiState.errors,
+                        onPessoaChange = onPessoaChange
                     )
                 }
             }
@@ -166,7 +205,8 @@ private fun PessoaFormScreenLoadingPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }
@@ -182,7 +222,8 @@ private fun PessoaFormScreenErrorPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }
@@ -198,7 +239,8 @@ private fun PessoaFormScreenSuccessInsertPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }
@@ -227,7 +269,8 @@ private fun PessoaFormScreenSuccessEditPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }
@@ -255,7 +298,8 @@ private fun PessoaFormScreenSavingPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }
@@ -284,7 +328,8 @@ private fun PessoaFormScreenSaveErrorPreview() {
             ),
             onBackClick = {},
             onRetry = {},
-            onSaveClick = {}
+            onSaveClick = {},
+            onPessoaChange = {}
         )
     }
 }

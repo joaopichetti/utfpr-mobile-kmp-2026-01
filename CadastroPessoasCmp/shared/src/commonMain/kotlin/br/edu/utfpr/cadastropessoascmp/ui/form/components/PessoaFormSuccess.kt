@@ -15,10 +15,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,26 +22,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
+import br.edu.utfpr.cadastropessoascmp.ui.form.PessoaFormErrors
 
 @Composable
 fun PessoaFormSuccess(
     modifier: Modifier = Modifier,
     pessoa: Pessoa = Pessoa(),
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    errors: PessoaFormErrors = PessoaFormErrors(),
+    onPessoaChange: (Pessoa) -> Unit
 ) {
-    var nome by remember(pessoa.nome) { mutableStateOf(pessoa.nome) }
-    var cpf by remember(pessoa.cpf) { mutableStateOf(pessoa.cpf) }
-    var telefone by remember(pessoa.telefone) { mutableStateOf(pessoa.telefone) }
-
-    var cep by remember(pessoa.endereco.cep) { mutableStateOf(pessoa.endereco.cep) }
-    var logradouro by remember(pessoa.endereco.logradouro) { mutableStateOf(pessoa.endereco.logradouro) }
-    var numero by remember(pessoa.endereco.numero) {
-        mutableStateOf(if (pessoa.endereco.numero == 0) "" else pessoa.endereco.numero.toString())
-    }
-    var complemento by remember(pessoa.endereco.complemento) { mutableStateOf(pessoa.endereco.complemento) }
-    var bairro by remember(pessoa.endereco.bairro) { mutableStateOf(pessoa.endereco.bairro) }
-    var cidade by remember(pessoa.endereco.cidade) { mutableStateOf(pessoa.endereco.cidade) }
-
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -56,39 +42,45 @@ fun PessoaFormSuccess(
         FormSectionTitle(title = "Dados Gerais")
 
         OutlinedTextField(
-            value = nome,
-            onValueChange = { nome = it },
+            value = pessoa.nome,
+            onValueChange = { onPessoaChange(pessoa.copy(nome = it)) },
             label = { Text("Nome") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.nome != null,
+            supportingText = errors.nome?.let { error -> { Text(error) } }
         )
 
         OutlinedTextField(
-            value = cpf,
-            onValueChange = { cpf = it },
+            value = pessoa.cpf,
+            onValueChange = { onPessoaChange(pessoa.copy(cpf = it)) },
             label = { Text("CPF") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.cpf != null,
+            supportingText = errors.cpf?.let { error -> { Text(error) } }
         )
 
         OutlinedTextField(
-            value = telefone,
-            onValueChange = { telefone = it },
+            value = pessoa.telefone,
+            onValueChange = { onPessoaChange(pessoa.copy(telefone = it)) },
             label = { Text("Telefone") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Phone
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.telefone != null,
+            supportingText = errors.telefone?.let { error -> { Text(error) } }
         )
 
         Spacer(Modifier.height(8.dp))
@@ -96,44 +88,68 @@ fun PessoaFormSuccess(
         FormSectionTitle(title = "Endereço")
 
         OutlinedTextField(
-            value = cep,
-            onValueChange = { cep = it },
+            value = pessoa.endereco.cep,
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(cep = it)
+                ))
+            },
             label = { Text("CEP") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.cep != null,
+            supportingText = errors.cep?.let { error -> { Text(error) } }
         )
 
         OutlinedTextField(
-            value = logradouro,
-            onValueChange = { logradouro = it },
+            value = pessoa.endereco.logradouro,
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(logradouro = it)
+                ))
+            },
             label = { Text("Logradouro") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.logradouro != null,
+            supportingText = errors.logradouro?.let { error -> { Text(error) } }
         )
 
         OutlinedTextField(
-            value = numero,
-            onValueChange = { numero = it },
+            value = if (pessoa.endereco.numero <= 0) "" else pessoa.endereco.numero.toString(),
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(
+                        numero = it.toIntOrNull() ?: 0
+                    )
+                ))
+            },
             label = { Text("Número") },
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = errors.numero != null,
+            supportingText = errors.numero?.let { error -> { Text(error) } }
         )
 
         OutlinedTextField(
-            value = complemento,
-            onValueChange = { complemento = it },
+            value = pessoa.endereco.complemento,
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(complemento = it)
+                ))
+            },
             label = { Text("Complemento") },
             enabled = enabled,
             singleLine = true,
@@ -144,8 +160,12 @@ fun PessoaFormSuccess(
         )
 
         OutlinedTextField(
-            value = bairro,
-            onValueChange = { bairro = it },
+            value = pessoa.endereco.bairro,
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(bairro = it)
+                ))
+            },
             label = { Text("Bairro") },
             enabled = enabled,
             singleLine = true,
@@ -156,8 +176,12 @@ fun PessoaFormSuccess(
         )
 
         OutlinedTextField(
-            value = cidade,
-            onValueChange = { cidade = it },
+            value = pessoa.endereco.cidade,
+            onValueChange = {
+                onPessoaChange(pessoa.copy(
+                    endereco = pessoa.endereco.copy(cidade = it)
+                ))
+            },
             label = { Text("Cidade") },
             enabled = enabled,
             singleLine = true,
@@ -194,7 +218,8 @@ private fun FormSectionTitle(
 private fun PessoaFormSuccessEmptyPreview() {
     MaterialTheme {
         PessoaFormSuccess(
-            pessoa = Pessoa()
+            pessoa = Pessoa(),
+            onPessoaChange = {}
         )
     }
 }
@@ -217,7 +242,8 @@ private fun PessoaFormSuccessFilledPreview() {
                     bairro = "Centro",
                     cidade = "Curitiba"
                 )
-            )
+            ),
+            onPessoaChange = {}
         )
     }
 }
