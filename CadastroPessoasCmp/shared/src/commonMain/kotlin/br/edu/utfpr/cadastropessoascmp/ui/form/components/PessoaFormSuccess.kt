@@ -22,7 +22,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
+import br.edu.utfpr.cadastropessoascmp.extensions.apenasDigitos
 import br.edu.utfpr.cadastropessoascmp.ui.form.PessoaFormErrors
+import br.edu.utfpr.cadastropessoascmp.ui.form.visualtransformation.MaskVisualTransformation
+import br.edu.utfpr.cadastropessoascmp.ui.form.visualtransformation.TelefoneVisualTransformation
 
 @Composable
 fun PessoaFormSuccess(
@@ -57,7 +60,9 @@ fun PessoaFormSuccess(
 
         OutlinedTextField(
             value = pessoa.cpf,
-            onValueChange = { onPessoaChange(pessoa.copy(cpf = it)) },
+            onValueChange = { novoValor ->
+                onPessoaChange(pessoa.copy(cpf = novoValor.apenasDigitos(11)))
+            },
             label = { Text("CPF") },
             enabled = enabled,
             singleLine = true,
@@ -66,12 +71,15 @@ fun PessoaFormSuccess(
             ),
             modifier = Modifier.fillMaxWidth(),
             isError = errors.cpf != null,
-            supportingText = errors.cpf?.let { error -> { Text(error) } }
+            supportingText = errors.cpf?.let { error -> { Text(error) } },
+            visualTransformation = MaskVisualTransformation.Cpf
         )
 
         OutlinedTextField(
             value = pessoa.telefone,
-            onValueChange = { onPessoaChange(pessoa.copy(telefone = it)) },
+            onValueChange = { novoValor ->
+                onPessoaChange(pessoa.copy(telefone = novoValor.apenasDigitos(11)))
+            },
             label = { Text("Telefone") },
             enabled = enabled,
             singleLine = true,
@@ -80,7 +88,8 @@ fun PessoaFormSuccess(
             ),
             modifier = Modifier.fillMaxWidth(),
             isError = errors.telefone != null,
-            supportingText = errors.telefone?.let { error -> { Text(error) } }
+            supportingText = errors.telefone?.let { error -> { Text(error) } },
+            visualTransformation = TelefoneVisualTransformation
         )
 
         Spacer(Modifier.height(8.dp))
@@ -89,9 +98,9 @@ fun PessoaFormSuccess(
 
         OutlinedTextField(
             value = pessoa.endereco.cep,
-            onValueChange = {
+            onValueChange = { novoValor ->
                 onPessoaChange(pessoa.copy(
-                    endereco = pessoa.endereco.copy(cep = it)
+                    endereco = pessoa.endereco.copy(cep = novoValor.apenasDigitos(8))
                 ))
             },
             label = { Text("CEP") },
@@ -102,7 +111,8 @@ fun PessoaFormSuccess(
             ),
             modifier = Modifier.fillMaxWidth(),
             isError = errors.cep != null,
-            supportingText = errors.cep?.let { error -> { Text(error) } }
+            supportingText = errors.cep?.let { error -> { Text(error) } },
+            visualTransformation = MaskVisualTransformation.Cep
         )
 
         OutlinedTextField(
@@ -232,10 +242,10 @@ private fun PessoaFormSuccessFilledPreview() {
             pessoa = Pessoa(
                 id = 1,
                 nome = "João da Silva",
-                cpf = "123.456.789-00",
-                telefone = "(41) 99999-1111",
+                cpf = "12345678900",
+                telefone = "41999991111",
                 endereco = Endereco(
-                    cep = "80000-000",
+                    cep = "80000000",
                     logradouro = "Rua das Flores",
                     numero = 100,
                     complemento = "Apto 302",

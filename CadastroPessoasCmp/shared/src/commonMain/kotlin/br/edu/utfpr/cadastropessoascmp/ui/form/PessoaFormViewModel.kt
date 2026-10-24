@@ -221,7 +221,7 @@ class PessoaFormViewModel(
     private fun validarCpf(cpf: String): String? {
         return when {
             cpf.isBlank() -> null
-            cpf.length != 11 || !cpf.all { it.isDigit() } -> "CPF deve ser válido (apenas números, 11 dígitos)."
+            cpf.length != 11 || !cpf.all { it.isDigit() } -> "CPF deve ser válido."
             else -> null
         }
     }
@@ -229,7 +229,7 @@ class PessoaFormViewModel(
     private fun validarTelefone(telefone: String): String? {
         return when {
             telefone.isBlank() -> null
-            telefone.length !in 10..11 || !telefone.all { it.isDigit() } -> "Telefone deve ser válido (apenas números, 10 ou 11 dígitos)."
+            telefone.length !in 10..11 || !telefone.all { it.isDigit() } -> "Telefone deve ser válido."
             else -> null
         }
     }
@@ -237,7 +237,7 @@ class PessoaFormViewModel(
     private fun validarCep(cep: String): String? {
         return when {
             cep.isBlank() -> "CEP é obrigatório."
-            cep.length != 8 || !cep.all { it.isDigit() } -> "CEP deve ser válido (apenas números, 8 dígitos)."
+            cep.length != 8 || !cep.all { it.isDigit() } -> "CEP deve ser válido."
             else -> null
         }
     }
