@@ -9,22 +9,18 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-object KtorClient {
-    val client: HttpClient by lazy {
-        HttpClient {
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                        prettyPrint = false
-                    }
-                )
+fun createHttpClient(): HttpClient = HttpClient {
+    install(ContentNegotiation) {
+        json(
+            Json {
+                ignoreUnknownKeys = true
+                isLenient = true
+                prettyPrint = false
             }
-            install(Logging) {
-                logger = Logger.DEFAULT
-                level = LogLevel.INFO
-            }
-        }
+        )
+    }
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.INFO
     }
 }

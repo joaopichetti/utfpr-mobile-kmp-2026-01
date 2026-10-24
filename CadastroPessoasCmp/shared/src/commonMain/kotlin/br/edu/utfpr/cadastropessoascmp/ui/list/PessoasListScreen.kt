@@ -17,17 +17,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.ui.components.ErrorComponent
 import br.edu.utfpr.cadastropessoascmp.ui.components.LoadingComponent
 import br.edu.utfpr.cadastropessoascmp.ui.list.components.PessoasListSuccess
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun PessoasListScreen(
     modifier: Modifier = Modifier,
-    viewModel: PessoasListViewModel = viewModel(),
+    viewModel: PessoasListViewModel = koinViewModel(),
     onAddClick: () -> Unit,
     onPessoaClick: (Pessoa) -> Unit
 ) {

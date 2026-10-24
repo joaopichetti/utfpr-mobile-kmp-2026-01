@@ -2,8 +2,6 @@ package br.edu.utfpr.cadastropessoascmp.ui.form
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.edu.utfpr.cadastropessoascmp.data.repository.CepRepositoryImpl
-import br.edu.utfpr.cadastropessoascmp.data.repository.PessoaRepositoryImpl
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.domain.repository.CepRepository
 import br.edu.utfpr.cadastropessoascmp.domain.repository.PessoaRepository
@@ -16,8 +14,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class PessoaFormViewModel(
     private val pessoaId: Int? = null,
-    private val pessoaRepository: PessoaRepository = PessoaRepositoryImpl(),
-    private val cepRepository: CepRepository = CepRepositoryImpl()
+    private val pessoaRepository: PessoaRepository,
+    private val cepRepository: CepRepository
 ) : ViewModel() {
 
     private val isEditing: Boolean = pessoaId != null && pessoaId > 0

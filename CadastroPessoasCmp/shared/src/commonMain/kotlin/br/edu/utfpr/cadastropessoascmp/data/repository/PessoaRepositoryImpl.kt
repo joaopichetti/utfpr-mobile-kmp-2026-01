@@ -2,7 +2,6 @@ package br.edu.utfpr.cadastropessoascmp.data.repository
 
 import br.edu.utfpr.cadastropessoascmp.data.local.dao.EnderecoDao
 import br.edu.utfpr.cadastropessoascmp.data.local.dao.PessoaDao
-import br.edu.utfpr.cadastropessoascmp.data.local.database.DatabaseProvider
 import br.edu.utfpr.cadastropessoascmp.data.local.entity.toEntity
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.domain.repository.PessoaRepository
@@ -10,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class PessoaRepositoryImpl(
-    private val pessoaDao: PessoaDao = DatabaseProvider.database.pessoaDao(),
-    private val enderecoDao: EnderecoDao = DatabaseProvider.database.enderecoDao()
+    private val pessoaDao: PessoaDao,
+    private val enderecoDao: EnderecoDao
 ) : PessoaRepository {
 
     override fun observar(): Flow<List<Pessoa>> {

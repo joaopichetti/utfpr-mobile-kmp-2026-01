@@ -2,12 +2,11 @@ package br.edu.utfpr.cadastropessoascmp.data.repository
 
 import br.edu.utfpr.cadastropessoascmp.data.model.EnderecoResponse
 import br.edu.utfpr.cadastropessoascmp.data.remote.ViaCepApi
-import br.edu.utfpr.cadastropessoascmp.data.remote.ViaCepApiImpl
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.repository.CepRepository
 
 class CepRepositoryImpl(
-    private val api: ViaCepApi = ViaCepApiImpl()
+    private val api: ViaCepApi
 ) : CepRepository {
     override suspend fun buscarCep(cep: String): Result<Endereco> {
         return runCatching {

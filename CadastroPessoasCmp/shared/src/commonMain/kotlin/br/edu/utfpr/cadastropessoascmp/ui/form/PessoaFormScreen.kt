@@ -32,20 +32,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import br.edu.utfpr.cadastropessoascmp.domain.model.Endereco
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
 import br.edu.utfpr.cadastropessoascmp.ui.components.ErrorComponent
 import br.edu.utfpr.cadastropessoascmp.ui.components.LoadingComponent
 import br.edu.utfpr.cadastropessoascmp.ui.form.components.PessoaFormSuccess
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun PessoaFormScreen(
     modifier: Modifier = Modifier,
     pessoaId: Int? = null,
-    viewModel: PessoaFormViewModel = viewModel(key = pessoaId?.toString() ?: "new") {
-        PessoaFormViewModel(pessoaId = pessoaId)
-    },
+    viewModel: PessoaFormViewModel = koinViewModel(
+        key = pessoaId?.toString() ?: "new",
+        parameters = { parametersOf(pessoaId) }
+    ),
     onBackClick: () -> Unit,
     onSaveSuccess: () -> Unit = onBackClick,
     onDeleteSuccess: () -> Unit = onBackClick
