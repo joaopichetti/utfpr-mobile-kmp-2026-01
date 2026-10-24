@@ -7,10 +7,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -32,8 +38,10 @@ fun PessoaFormSuccess(
     modifier: Modifier = Modifier,
     pessoa: Pessoa = Pessoa(),
     enabled: Boolean = true,
+    isSearchingCep: Boolean = false,
     errors: PessoaFormErrors = PessoaFormErrors(),
-    onPessoaChange: (Pessoa) -> Unit
+    onPessoaChange: (Pessoa) -> Unit,
+    onBuscarCep: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -105,6 +113,7 @@ fun PessoaFormSuccess(
             },
             label = { Text("CEP") },
             enabled = enabled,
+            readOnly = isSearchingCep,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
@@ -112,7 +121,25 @@ fun PessoaFormSuccess(
             modifier = Modifier.fillMaxWidth(),
             isError = errors.cep != null,
             supportingText = errors.cep?.let { error -> { Text(error) } },
-            visualTransformation = MaskVisualTransformation.Cep
+            visualTransformation = MaskVisualTransformation.Cep,
+            trailingIcon = {
+                if (isSearchingCep) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    IconButton(
+                        onClick = onBuscarCep,
+                        enabled = enabled
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Buscar CEP"
+                        )
+                    }
+                }
+            }
         )
 
         OutlinedTextField(
@@ -123,7 +150,7 @@ fun PessoaFormSuccess(
                 ))
             },
             label = { Text("Logradouro") },
-            enabled = enabled,
+            enabled = false,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words
@@ -177,7 +204,7 @@ fun PessoaFormSuccess(
                 ))
             },
             label = { Text("Bairro") },
-            enabled = enabled,
+            enabled = false,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words
@@ -193,7 +220,7 @@ fun PessoaFormSuccess(
                 ))
             },
             label = { Text("Cidade") },
-            enabled = enabled,
+            enabled = false,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 capitalization = KeyboardCapitalization.Words
@@ -229,7 +256,8 @@ private fun PessoaFormSuccessEmptyPreview() {
     MaterialTheme {
         PessoaFormSuccess(
             pessoa = Pessoa(),
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onBuscarCep = {},
         )
     }
 }
@@ -253,7 +281,8 @@ private fun PessoaFormSuccessFilledPreview() {
                     cidade = "Curitiba"
                 )
             ),
-            onPessoaChange = {}
+            onPessoaChange = {},
+            onBuscarCep = {},
         )
     }
 }

@@ -2,8 +2,10 @@ package br.edu.utfpr.cadastropessoascmp.ui.form
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.edu.utfpr.cadastropessoascmp.data.repository.CepRepositoryImpl
 import br.edu.utfpr.cadastropessoascmp.data.repository.PessoaRepositoryImpl
 import br.edu.utfpr.cadastropessoascmp.domain.model.Pessoa
+import br.edu.utfpr.cadastropessoascmp.domain.repository.CepRepository
 import br.edu.utfpr.cadastropessoascmp.domain.repository.PessoaRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +16,8 @@ import kotlin.time.Duration.Companion.seconds
 
 class PessoaFormViewModel(
     private val pessoaId: Int? = null,
-    private val pessoaRepository: PessoaRepository = PessoaRepositoryImpl()
+    private val pessoaRepository: PessoaRepository = PessoaRepositoryImpl(),
+    private val cepRepository: CepRepository = CepRepositoryImpl()
 ) : ViewModel() {
 
     private val isEditing: Boolean = pessoaId != null && pessoaId > 0
@@ -77,41 +80,60 @@ class PessoaFormViewModel(
 
     fun onPessoaChange(pessoa: Pessoa) {
         val currentState = _uiState.value
-        val (previousPessoa, currentErrors) = when (currentState) {
-            is PessoaFormUiState.Success -> currentState.pessoa to currentState.errors
-            is PessoaFormUiState.SaveError -> currentState.pessoa to currentState.errors
-            is PessoaFormUiState.DeleteError -> currentState.pessoa to currentState.errors
+        val (previousPessoa, currentErrors, isSearchingCep) = when (currentState) {
+            is PessoaFormUiState.Success -> Triple(
+                currentState.pessoa, currentState.errors, currentState.isSearchingCep
+            )
+            is PessoaFormUiState.SaveError -> Triple(
+                currentState.pessoa, currentState.errors, currentState.isSearchingCep
+            )
+            is PessoaFormUiState.DeleteError -> Triple(
+                currentState.pessoa, currentState.errors, currentState.isSearchingCep
+            )
             else -> return
         }
 
+        val cepAlterado = pessoa.endereco.cep != previousPessoa.endereco.cep
+        val pessoaAtualizada = if (cepAlterado) {
+            pessoa.copy(
+                endereco = pessoa.endereco.copy(
+                    logradouro = "",
+                    bairro = "",
+                    cidade = ""
+                )
+            )
+        } else {
+            pessoa
+        }
+
         val updatedErrors = currentErrors.copy(
-            nome = if (pessoa.nome != previousPessoa.nome) {
-                validarNome(pessoa.nome)
+            nome = if (pessoaAtualizada.nome != previousPessoa.nome) {
+                validarNome(pessoaAtualizada.nome)
             } else {
                 currentErrors.nome
             },
-            cpf = if (pessoa.cpf != previousPessoa.cpf) {
-                validarCpf(pessoa.cpf)
+            cpf = if (pessoaAtualizada.cpf != previousPessoa.cpf) {
+                validarCpf(pessoaAtualizada.cpf)
             } else {
                 currentErrors.cpf
             },
-            telefone = if (pessoa.telefone != previousPessoa.telefone) {
-                validarTelefone(pessoa.telefone)
+            telefone = if (pessoaAtualizada.telefone != previousPessoa.telefone) {
+                validarTelefone(pessoaAtualizada.telefone)
             } else {
                 currentErrors.telefone
             },
-            cep = if (pessoa.endereco.cep != previousPessoa.endereco.cep) {
-                validarCep(pessoa.endereco.cep)
+            cep = if (cepAlterado) {
+                validarCep(pessoaAtualizada.endereco.cep)
             } else {
                 currentErrors.cep
             },
-            logradouro = if (pessoa.endereco.logradouro != previousPessoa.endereco.logradouro) {
-                validarLogradouro(pessoa.endereco.logradouro)
+            logradouro = if (pessoaAtualizada.endereco.logradouro != previousPessoa.endereco.logradouro) {
+                validarLogradouro(pessoaAtualizada.endereco.logradouro)
             } else {
                 currentErrors.logradouro
             },
-            numero = if (pessoa.endereco.numero != previousPessoa.endereco.numero) {
-                validarNumero(pessoa.endereco.numero)
+            numero = if (pessoaAtualizada.endereco.numero != previousPessoa.endereco.numero) {
+                validarNumero(pessoaAtualizada.endereco.numero)
             } else {
                 currentErrors.numero
             }
@@ -119,20 +141,29 @@ class PessoaFormViewModel(
 
         _uiState.value = PessoaFormUiState.Success(
             isEditing = isEditing,
-            pessoa = pessoa,
-            errors = updatedErrors
+            pessoa = pessoaAtualizada,
+            errors = updatedErrors,
+            isSearchingCep = isSearchingCep
         )
     }
 
     fun salvarPessoa() {
-        val currentPessoa = when (val state = _uiState.value) {
-            is PessoaFormUiState.Success -> state.pessoa
-            is PessoaFormUiState.SaveError -> state.pessoa
-            is PessoaFormUiState.DeleteError -> state.pessoa
+        val (currentPessoa, currentErrors, isSearchingCep) = when (val state = _uiState.value) {
+            is PessoaFormUiState.Success -> Triple(state.pessoa, state.errors, state.isSearchingCep)
+            is PessoaFormUiState.SaveError -> Triple(state.pessoa, state.errors, state.isSearchingCep)
+            is PessoaFormUiState.DeleteError -> Triple(state.pessoa, state.errors, state.isSearchingCep)
             else -> return
         }
 
-        val validationErrors = validarFormulario(currentPessoa)
+        if (isSearchingCep) return
+
+        val validationErrors = validarFormulario(currentPessoa).let { formErrors ->
+            if (formErrors.cep == null && currentErrors.cep != null) {
+                formErrors.copy(cep = currentErrors.cep)
+            } else {
+                formErrors
+            }
+        }
         if (validationErrors.hasErrors) {
             _uiState.value = PessoaFormUiState.Success(
                 isEditing = isEditing,
@@ -196,6 +227,82 @@ class PessoaFormViewModel(
                     message = error.message ?: "Ocorreu um erro ao excluir a pessoa."
                 )
             }
+        }
+    }
+
+
+    fun buscarCep() {
+        val currentState = _uiState.value
+        val (currentPessoa, currentErrors) = when (currentState) {
+            is PessoaFormUiState.Success -> {
+                if (currentState.isSearchingCep) return
+                currentState.pessoa to currentState.errors
+            }
+            is PessoaFormUiState.SaveError -> {
+                if (currentState.isSearchingCep) return
+                currentState.pessoa to currentState.errors
+            }
+            is PessoaFormUiState.DeleteError -> {
+                if (currentState.isSearchingCep) return
+                currentState.pessoa to currentState.errors
+            }
+            else -> return
+        }
+
+        val cep = currentPessoa.endereco.cep
+        if (validarCep(cep) != null) {
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.value = PessoaFormUiState.Success(
+                isEditing = isEditing,
+                pessoa = currentPessoa,
+                errors = currentErrors.copy(cep = null),
+                isSearchingCep = true
+            )
+
+            delay(2.seconds)
+
+            cepRepository.buscarCep(cep)
+                .onSuccess { enderecoRetornado ->
+                    val stateAfterSearch = _uiState.value
+                    val pessoaBase = (stateAfterSearch as? PessoaFormUiState.Success)?.pessoa ?: currentPessoa
+                    val errorsBase = (stateAfterSearch as? PessoaFormUiState.Success)?.errors ?: currentErrors
+                    val novoLogradouro = enderecoRetornado.logradouro
+
+                    val pessoaComEndereco = pessoaBase.copy(
+                        endereco = pessoaBase.endereco.copy(
+                            logradouro = novoLogradouro,
+                            bairro = enderecoRetornado.bairro,
+                            cidade = enderecoRetornado.cidade
+                        )
+                    )
+
+                    _uiState.value = PessoaFormUiState.Success(
+                        isEditing = isEditing,
+                        pessoa = pessoaComEndereco,
+                        errors = errorsBase.copy(
+                            cep = null,
+                            logradouro = validarLogradouro(novoLogradouro)
+                        ),
+                        isSearchingCep = false
+                    )
+                }
+                .onFailure { error ->
+                    val stateAfterSearch = _uiState.value
+                    val pessoaBase = (stateAfterSearch as? PessoaFormUiState.Success)?.pessoa ?: currentPessoa
+                    val errorsBase = (stateAfterSearch as? PessoaFormUiState.Success)?.errors ?: currentErrors
+
+                    _uiState.value = PessoaFormUiState.Success(
+                        isEditing = isEditing,
+                        pessoa = pessoaBase,
+                        errors = errorsBase.copy(
+                            cep = error.message?.takeIf { it.isNotBlank() } ?: "Erro ao buscar o CEP."
+                        ),
+                        isSearchingCep = false
+                    )
+                }
         }
     }
 

@@ -30,32 +30,37 @@ sealed interface PessoaFormUiState {
     data class Success(
         override val isEditing: Boolean = false,
         val pessoa: Pessoa = Pessoa(),
-        val errors: PessoaFormErrors = PessoaFormErrors()
+        val errors: PessoaFormErrors = PessoaFormErrors(),
+        val isSearchingCep: Boolean = false
     ) : PessoaFormUiState
 
     data class Saving(
         override val isEditing: Boolean = false,
         val pessoa: Pessoa = Pessoa(),
-        val errors: PessoaFormErrors = PessoaFormErrors()
+        val errors: PessoaFormErrors = PessoaFormErrors(),
+        val isSearchingCep: Boolean = false
     ) : PessoaFormUiState
 
     data class SaveError(
         override val isEditing: Boolean = false,
         val pessoa: Pessoa = Pessoa(),
         val message: String = "Ocorreu um erro ao salvar a pessoa",
-        val errors: PessoaFormErrors = PessoaFormErrors()
+        val errors: PessoaFormErrors = PessoaFormErrors(),
+        val isSearchingCep: Boolean = false
     ) : PessoaFormUiState
 
     data class Deleting(
         override val isEditing: Boolean = true,
         val pessoa: Pessoa = Pessoa(),
-        val errors: PessoaFormErrors = PessoaFormErrors()
+        val errors: PessoaFormErrors = PessoaFormErrors(),
+        val isSearchingCep: Boolean = false
     ) : PessoaFormUiState
 
     data class DeleteError(
         override val isEditing: Boolean = true,
         val pessoa: Pessoa = Pessoa(),
         val errors: PessoaFormErrors = PessoaFormErrors(),
-        val message: String = "Ocorreu um erro ao excluir a pessoa"
+        val message: String = "Ocorreu um erro ao excluir a pessoa",
+        val isSearchingCep: Boolean = false
     ) : PessoaFormUiState
 }

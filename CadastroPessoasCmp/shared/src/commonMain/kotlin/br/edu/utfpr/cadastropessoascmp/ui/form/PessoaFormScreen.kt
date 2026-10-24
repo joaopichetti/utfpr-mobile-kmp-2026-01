@@ -73,7 +73,8 @@ fun PessoaFormScreen(
         onSaveClick = viewModel::salvarPessoa,
         onRetry = viewModel::carregarPessoa,
         onPessoaChange = viewModel::onPessoaChange,
-        onDeleteClick = viewModel::excluirPessoa
+        onDeleteClick = viewModel::excluirPessoa,
+        onBuscarCep = viewModel::buscarCep
     )
 }
 
@@ -86,6 +87,7 @@ fun PessoaFormScreen(
     onRetry: () -> Unit,
     onPessoaChange: (Pessoa) -> Unit,
     onDeleteClick: () -> Unit,
+    onBuscarCep: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -147,24 +149,30 @@ fun PessoaFormScreen(
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
                         enabled = true,
+                        isSearchingCep = uiState.isSearchingCep,
                         errors = uiState.errors,
-                        onPessoaChange = onPessoaChange
+                        onPessoaChange = onPessoaChange,
+                        onBuscarCep = onBuscarCep
                     )
                 }
                 is PessoaFormUiState.Saving -> {
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
                         enabled = false,
+                        isSearchingCep = uiState.isSearchingCep,
                         errors = uiState.errors,
-                        onPessoaChange = onPessoaChange
+                        onPessoaChange = onPessoaChange,
+                        onBuscarCep = onBuscarCep
                     )
                 }
                 is PessoaFormUiState.SaveError -> {
                     PessoaFormSuccess(
                         pessoa = uiState.pessoa,
                         enabled = true,
+                        isSearchingCep = uiState.isSearchingCep,
                         errors = uiState.errors,
-                        onPessoaChange = onPessoaChange
+                        onPessoaChange = onPessoaChange,
+                        onBuscarCep = onBuscarCep
                     )
                 }
                 is PessoaFormUiState.DeleteError -> {
@@ -172,7 +180,9 @@ fun PessoaFormScreen(
                         pessoa = uiState.pessoa,
                         errors = uiState.errors,
                         enabled = true,
-                        onPessoaChange = onPessoaChange
+                        isSearchingCep = uiState.isSearchingCep,
+                        onPessoaChange = onPessoaChange,
+                        onBuscarCep = onBuscarCep
                     )
                 }
                 is PessoaFormUiState.Deleting -> {
@@ -180,7 +190,9 @@ fun PessoaFormScreen(
                         pessoa = uiState.pessoa,
                         errors = uiState.errors,
                         enabled = false,
-                        onPessoaChange = onPessoaChange
+                        isSearchingCep = uiState.isSearchingCep,
+                        onPessoaChange = onPessoaChange,
+                        onBuscarCep = onBuscarCep
                     )
                 }
             }
@@ -295,7 +307,8 @@ private fun PessoaFormScreenLoadingPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
@@ -313,7 +326,8 @@ private fun PessoaFormScreenErrorPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
@@ -331,7 +345,8 @@ private fun PessoaFormScreenSuccessInsertPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
@@ -362,7 +377,8 @@ private fun PessoaFormScreenSuccessEditPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
@@ -392,7 +408,8 @@ private fun PessoaFormScreenSavingPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
@@ -423,7 +440,8 @@ private fun PessoaFormScreenSaveErrorPreview() {
             onRetry = {},
             onSaveClick = {},
             onPessoaChange = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onBuscarCep = {}
         )
     }
 }
